@@ -1,16 +1,17 @@
 const Enquirer = require('enquirer')
 
-// class MemoSelector {
-// (async　displayRoption () {
-//   const question = {
-//     type: 'select',
-//     name: 'favorite',
-//     message: '好きな乗り物は？',
-//     choices: ['パトカー', '救急車', '消防車'],
-//   };
-//   const answer = await Enquirer.prompt(question);
-//   console.log(`僕も${answer.favorite}が好きだよ`);
-// })();
+(async ()=> {
+  const question = {
+    type: 'select',
+    name: 'favorite',
+    message: '好きな乗り物は？',
+    choices: ['パトカー', '救急車', '消防車'],
+  };
+  const answer = await Enquirer.prompt(question);
+  console.log(answer);
+})();
+
+
 
 function displayRoption () {
   const sqlite3 = require('sqlite3').verbose()
@@ -38,7 +39,3 @@ console.log(foo)
 //
 // const foo = toSeconds(12, 10, 5)
 // console.log(foo)
-
-
-
-

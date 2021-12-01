@@ -57,49 +57,18 @@ function displayRoption () {
   })
 }
 
-// セレクターのクラスを作ってみる
-// class MemoSelector {
-//   displayRoption () {
-//     const sqlite3 = require('sqlite3').verbose()
-//     const db = new sqlite3.Database('./memo.db')
-//     db.serialize(() => {
-//       db.each('SELECT * FROM foodb', (error, row) => {
-//         // 選択したメモを表示できるようにしたい（未実装）
-//         if (error) {
-//           console.error('Error!', error)
-//           return
-//         }
-//         const foo = row.content.split('\n')
-//         return foo
-//       })
-//       db.close()
-//     })
-//   }
-// }
-
-// class Foo extends MemoSelector {
-//   prompt.run()
-//   .then(answer => console.log('Answer:', answer))
-//   .catch(console.error);
-// }
-
-// const hogehoge = [ 'foo', 'bar', 'baz' ]
-const { Select } = require('enquirer')
-
-const MemoSelector = class {
-  constructor () {
-    const prompt = new Select({
-      name: 'color',
-      message: 'メモを選択してください',
-      choices: hogehoge
-    })
-  }
-}
-
-prompt.run()
-  .then(answer => console.log('Answer:', answer))
-  .catch(console.error);
-}
+// Enquirerライブラリー
+const Enquirer = require('enquirer');
+const foo = (async ()=> {
+  const question = {
+    type: 'select',
+    name: 'favorite',
+    message: '好きな乗り物は？',
+    choices: ['パトカー', '救急車', '消防車'],
+  };
+  const answer = await Enquirer.prompt(question);
+  console.log(`僕も${answer.favorite}が好きだよ`);
+})();
 
 // オプション受け付け
 const args = process.argv.slice(2)
