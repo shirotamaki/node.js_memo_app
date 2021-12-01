@@ -1,0 +1,15 @@
+{
+  "name": "enquirer",
+  "version": "2.3.6",
+  "description": "",
+  "main": "memo.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "enquirer": "^2.3.6",
+    "sqlite3": "^5.0.2"
+  }
+}
