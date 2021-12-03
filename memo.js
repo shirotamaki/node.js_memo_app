@@ -51,7 +51,6 @@ function displayRoption () {
       }
       const foo = row.content.split('\n')
       return foo
-      // console.log(foo)
     })
     db.close()
   })
