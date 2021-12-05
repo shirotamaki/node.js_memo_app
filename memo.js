@@ -1,7 +1,17 @@
-// メモを追加
+// やりたいこと
+// -rオプション　（メモのタイトルだけ表示させ、選択したメモを全文表示させる）
+// -dオプション　（メモのタイトルだけ表示させ、選択したメモをDBから削除する）
+
+// Enquireモジュールを活用し、
+// choicesの箇所へ、DBから取り出したcontentのデータを配列にして渡せばいけると思われる
+
+const Enquirer = require('enquirer')
+// sqlite3
+const sqlite3 = require('sqlite3').verbose()
+const db = new sqlite3.Database('./memo.db')
+
+// メモを追加用
 function main (stdin) {
-  const sqlite3 = require('sqlite3').verbose()
-  const db = new sqlite3.Database('./memo.db')
   db.serialize(() => {
     db.run('CREATE TABLE if not exists foodb (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT)')
     db.run('INSERT INTO foodb (content) VALUES (?)', stdin)
@@ -11,8 +21,6 @@ function main (stdin) {
 
 // lオプション
 function displayLoption () {
-  const sqlite3 = require('sqlite3').verbose()
-  const db = new sqlite3.Database('./memo.db')
   db.serialize(() => {
     db.each('SELECT * FROM foodb', (error, row) => {
       if (error) {
@@ -27,55 +35,71 @@ function displayLoption () {
 
 // dオプション
 function displayDoption () {
-  const sqlite3 = require('sqlite3').verbose()
-  const db = new sqlite3.Database('./memo.db')
   db.serialize(() => {
-    db.run('DELETE FROM foodb WHERE id = 1', error => {
-      if (error) {
-        return console.error(error.message)
-      }
-    })
-  })
-}
-
-// rオプション
-function displayRoption () {
-  const sqlite3 = require('sqlite3').verbose()
-  const db = new sqlite3.Database('./memo.db')
-  db.serialize(() => {
-    db.each('SELECT * FROM foodb', (error, row) => {
-      // 選択したメモを表示できるようにしたい（未実装）
+    db.all('SELECT * FROM foodb', (error, rows) => {
       if (error) {
         console.error('Error!', error)
         return
       }
-      const foo = row.content.split('\n')
-      return foo
+      const memoTitles = rows.map(({ content }) => content.split('\n')[0])
+      const memos = rows
+      const values = {
+        type: 'select',
+        name: 'memoTitle',
+        message: 'Choose a note you want to see:',
+        choices: memoTitles,
+      }
+      const answer = Enquirer.prompt(values)
+      answer.then(({ memoTitle }) => {
+        const memoIds = memos.find(element => element.content.split('\n')[0] === memoTitle)
+        const memoId = memoIds.id
+        // console.log(memoId)
+      })
+    })
+    db.close()
+  })
+  db.serialize(() => {
+    db.run('DELETE FROM foodb WHERE id = "memoId"', error => {
+      if (error) {
+        return console.error(error.message)
+      }
     })
     db.close()
   })
 }
 
-// Enquirerライブラリー
-const Enquirer = require('enquirer');
-const foo = (async ()=> {
-  const question = {
-    type: 'select',
-    name: 'favorite',
-    message: '好きな乗り物は？',
-    choices: ['パトカー', '救急車', '消防車'],
-  };
-  const answer = await Enquirer.prompt(question);
-  console.log(`僕も${answer.favorite}が好きだよ`);
-})();
+// rオプション
+function displayRoption () {
+  db.serialize(() => {
+    db.all('SELECT * FROM foodb', (error, rows) => {
+      if (error) {
+        console.error('Error!', error)
+        return
+      }
+      const memoTitles = rows.map(({ content }) => content.split('\n')[0])
+      const memoAllData = rows.map(({ content }) => content)
+      const values = {
+        type: 'select',
+        name: 'memoTitle',
+        message: 'Choose a note you want to see:',
+        choices: memoTitles,
+      }
+      const answer = Enquirer.prompt(values)
+      answer.then(({ memoTitle }) => {
+        const memoContent = memoAllData.find(element => element.split('\n')[0] === memoTitle)
+        console.log(memoContent)
+      })
+    })
+    db.close()
+  })
+}
 
 // オプション受け付け
 const args = process.argv.slice(2)
 if (args == '-l') {
   displayLoption()
 } else if (args == '-r') {
-  const foo = displayRoption()
-  console.log(foo)
+  displayRoption()
 } else if (args == '-d') {
   displayDoption()
 } else if (args == '') {
