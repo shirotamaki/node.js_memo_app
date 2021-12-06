@@ -53,16 +53,13 @@ function displayDoption () {
       answer.then(({ memoTitle }) => {
         const memoIds = memos.find(element => element.content.split('\n')[0] === memoTitle)
         const memoId = memoIds.id
-        // console.log(memoId)
+        console.log(memoId)
+        db.run('DELETE FROM foodb WHERE id = ?', memoId, error => {
+          if (error) {
+            return console.error(error.message)
+          }
+        })
       })
-    })
-    db.close()
-  })
-  db.serialize(() => {
-    db.run('DELETE FROM foodb WHERE id = "memoId"', error => {
-      if (error) {
-        return console.error(error.message)
-      }
     })
     db.close()
   })
