@@ -17,6 +17,7 @@ function displayLoption () {
       return
     }
     console.log(row.content.split('\n')[0])
+    console.log(row)
   })
   db.close()
 }
@@ -46,6 +47,7 @@ function displayDoption () {
           return console.error(error.message)
         }
       })
+      db.close()
     })
   })
 }
@@ -68,6 +70,7 @@ function displayRoption () {
     const answer = Enquirer.prompt(values)
     answer.then(({ memoTitle }) => {
       const memoContent = memoAllData.find(element => element.split('\n')[0] === memoTitle)
+      console.log(memoTitle)
       console.log(memoContent)
     })
   })
@@ -87,3 +90,4 @@ if (args == '-l') {
 } else {
   console.log('引数に誤りがあります')
 }
+

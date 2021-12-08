@@ -1,140 +1,88 @@
-// // sqlite3
-// const sqlite3 = require('sqlite3').verbose()
-// const db = new sqlite3.Database('./memo.db')
-// // Enquirerモジュール
-// const Enquirer = require('enquirer');
-//
-//
-// // const foo = (async ()=> {
-// //   const question = {
-// //     content: ['パトカー', '救急車', '消防車'],
-// //   };
-// //   const answer = await Enquirer.prompt(question);
-// //   console.log(`僕も${answer.favorite}が好きだよ`);
-// // })();
-//
-displayRoption = async () => {
-  console.log(await dataForOutput())
+const Enquirer = require('enquirer')
+const sqlite3 = require('sqlite3').verbose()
+const db = new sqlite3.Database('./memo.db')
+
+// メモを追加
+function main (stdin) {
+  db.run('CREATE TABLE if not exists foodb (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT)')
+  db.run('INSERT INTO foodb (content) VALUES (?)', stdin)
+  db.close()
 }
 
- dataForOutput = () => {
+// lオプション
+async function displayLoption () {
+  const rows = await getDbObj()
+  rows.forEach(function (memoTitle) {
+    console.log(memoTitle.content.split('\n')[0])
+  })
+}
+
+// rオプション
+async function displayRoption () {
+  const rows = await getDbObj()
+  const selectedMemo = await selectMemo(rows)
+  console.log(selectedMemo.content)
+}
+
+// dオプション
+async function displayDoption () {
+  const rows = await getDbObj()
+  const selectedMemo = await selectMemo(rows)
+  await deleteMemo(selectedMemo.id)
+}
+
+// 全てのDBを取得
+function getDbObj () {
   return new Promise(function (resolve, reject) {
-    db.serialize(() => {
-      db.each('SELECT * FROM foodb', (error, row) => {
-        if (error) {
-          console.error('Error!', error)
-          return
-        }
-        const bar = row.content.split('\n')[0]
-        resolve(bar)
-      })
-        db.close()
+    db.all('SELECT * FROM foodb', (error, rows) => {
+      if (error) {
+        console.error('Error!', error)
+        return
+      }
+      resolve(rows) //dbをオブジェクト形式の配列で取得できる
+    })
+  })
+  db.close()
+}
+
+// メモを選択する
+function selectMemo (rows) {
+  return new Promise(function (resolve, reject) {
+    const memosTitle = rows.map(({ content }) => content.split('\n')[0])
+    const values = {
+      type: 'select',
+      name: 'memoTitle',
+      message: 'Choose a note you want to see:',
+      choices: memosTitle,
+    }
+    const memo = Enquirer.prompt(values)
+    memo.then(({ memoTitle }) => {
+      const selectedMemo = rows.find(element => element.content.split('\n')[0] === memoTitle)
+      resolve(selectedMemo)
     })
   })
 }
 
-// displayRoption()
-//
-//
-// const Enquirer = require('enquirer');
-// ( ()=> {
-//   const question = {
-//     type: 'select',
-//     name: 'favorite',
-//     message: '好きな乗り物は？',
-//     choices: ['パトカー', '救急車', '消防車'],
-//   };
-//   const answer =  Enquirer.prompt(question);
-//   answer.then( (answer) => { console.log(answer)})
-//   console.log(answer)
-//   console.log(`僕も${answer.favorite}が好きだよ`);
-// })();
-//
-// function sleep(val) {
-//   return new Promise(function(resolve) {
-//     setTimeout(function() {
-//       console.log(val++);
-//       resolve(val);
-//     }, 1000);
-//   });
-// }
-//
-// sleep(0).then(function(val) {
-//   return sleep(val);
-// }).then(function(val) {
-//   return sleep(val);
-// }).then(function(val) {
-//   return sleep(val);
-// }).then(function(val) {
-//   return sleep(val);
-// }).then(function(val) {
-//   return sleep(val);
-// })
-// const { prompt } = require('enquirer');
-// const response = await prompt([
-//   {
-//     type: 'input',
-//     name: 'name',
-//     message: 'What is your name?'
-//   },
-//   {
-//     type: 'input',
-//     name: 'username',
-//     message: 'What is your username?'
-//   }
-// ]);
-//
-// console.log(response);
-// response()
-//
-// const { prompt } = require('enquirer');
-//
-// const question = {
-//   type: 'input',
-//   name: 'username',
-//   message: 'What is your username?'
-// };
-//
-// prompt(question)
-// .then(a => console.log('Answer:', a))
-// .catch(console.error);
-//
-//
-//
-// const answer = Enquirer.prompt(values)
-// answer.then(({ title }) => console.log( title ))
-//
+// メモを削除する
+function deleteMemo (memoId) {
+  db.run('DELETE FROM foodb WHERE id = ?', memoId, error => {
+    if (error) {
+      return console.error(error.message)
+    }
+  })
+  db.close()
+}
 
-
- const foo =  [
-  'test1\nmemo\nmemo\nmemo\n',
-    'test2\n123\n456\n789\n',
-    'test3\nメモ\nめも\n'
-  ]
-
-const bar = foo.find(element => element.split('\n')[0] === 'test3' )
-console.log(bar)
-
-❯ node test.js
-test3
-メモ
-めも
-
-const answer = Enquirer.prompt(values)
-answer.then(({ title }) => console.log( title ))
-.then((res) => {
-  const bar = memoAllData.find(element => element.split('\n')[0] === res.title)
-  console.log(bar)
-})
-
-
-
-
-
-
-
-
-
-
-
-
+// オプション受け付け
+const args = process.argv.slice(2)
+if (args == '-l') {
+  displayLoption()
+} else if (args == '-r') {
+  displayRoption()
+} else if (args == '-d') {
+  displayDoption()
+} else if (args == '') {
+  main(require('fs').readFileSync('/dev/stdin', 'utf8'))
+} else {
+  console.log('引数に誤りがあります')
+}
