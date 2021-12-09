@@ -28,13 +28,13 @@ class Storage {
   }
 
   selectMemo (rows) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const memosTitle = rows.map(({ content }) => content.split('\n')[0])
       const values = {
         type: 'select',
         name: 'memoTitle',
         message: 'Choose a note you want to see:',
-        choices: memosTitle,
+        choices: memosTitle
       }
       const memo = Enquirer.prompt(values)
       memo.then(({ memoTitle }) => {
@@ -58,20 +58,20 @@ class Display {
     this.storage = new Storage()
   }
 
-  async displayLoption () {
+  async displayLOption () {
     const rows = await this.storage.getDbObj()
     rows.forEach((memoTitle) => {
       console.log(memoTitle.content.split('\n')[0])
     })
   }
 
-  async displayRoption () {
+  async displayROption () {
     const rows = await this.storage.getDbObj()
     const selectedMemo = await this.storage.selectMemo(rows)
     console.log(selectedMemo.content)
   }
 
-  async displayDoption () {
+  async displayDOption () {
     const rows = await this.storage.getDbObj()
     const selectedMemo = await this.storage.selectMemo(rows)
     await this.storage.deleteMemo(selectedMemo.id)
@@ -85,13 +85,15 @@ class Option {
 
   async getOption () {
     const args = await process.argv.slice(2)
+    /* eslint-disable */
     if (args == '-l') {
-      this.display.displayLoption()
+      this.display.displayLOption()
     } else if (args == '-r') {
-      this.display.displayRoption()
+      this.display.displayROption()
     } else if (args == '-d') {
-      this.display.displayDoption()
+      this.display.displayDOption()
     } else if (args == '') {
+      /* eslint-enable */
       const storage = new Storage()
       storage.insert(require('fs').readFileSync('/dev/stdin', 'utf8'))
     } else {
@@ -100,9 +102,5 @@ class Option {
   }
 }
 
-function main () {
-  const option = new Option()
-  option.getOption()
-}
-
-main()
+const main = new Option()
+main.getOption()
