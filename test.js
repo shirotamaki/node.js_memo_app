@@ -90,6 +90,13 @@ if (args == '-l') {
 
 
 
+
+
+
+
+
+
+
 // promise, thenバージョン
 // promise, thenバージョン
 // promise, thenバージョン
