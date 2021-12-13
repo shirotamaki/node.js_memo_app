@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const Enquirer = require('enquirer')
 
 class Storage {
@@ -84,16 +86,14 @@ class Option {
   }
 
   async getOption () {
-    const args = await process.argv.slice(2)
-    /* eslint-disable */
-    if (args == '-l') {
+    const args = await process.argv.slice(2).join(',')
+    if (args === '-l') {
       this.display.displayLOption()
-    } else if (args == '-r') {
+    } else if (args === '-r') {
       this.display.displayROption()
-    } else if (args == '-d') {
+    } else if (args === '-d') {
       this.display.displayDOption()
-    } else if (args == '') {
-      /* eslint-enable */
+    } else if (args === '') {
       const storage = new Storage()
       storage.insert(require('fs').readFileSync('/dev/stdin', 'utf8'))
     } else {
