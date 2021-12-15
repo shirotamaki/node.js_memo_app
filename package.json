@@ -1,7 +1,6 @@
 {
   "name": "enquirer",
   "version": "2.3.6",
-  "description": "",
   "main": "memo.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,8 +8,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "catchphrase_maker": "^1.0.9",
+    "coffee_amount_per_month": "^1.0.2",
     "enquirer": "^2.3.6",
-    "sqlite3": "^5.0.2"
+    "oreilly-animals": "^1.0.0",
+    "sqlite3": "^5.0.2",
+    "which-win-sawamura-award": "^1.0.3",
+    "wordquiz": "^1.0.5"
   },
   "devDependencies": {
     "eslint": "^8.4.1",
@@ -18,5 +22,14 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shirotamaki/node.js_memo_app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shirotamaki/node.js_memo_app/issues"
+  },
+  "homepage": "https://github.com/shirotamaki/node.js_memo_app#readme",
+  "description": ""
 }
