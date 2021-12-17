@@ -17,45 +17,39 @@ class Storage {
     this.db.run('INSERT INTO foodb (content) VALUES (?)', stdin)
   }
 
-  // 工事中
-  getDbObj() {
-    let foo = this.db.all('SELECT * FROM foodb', (error, rows) => {
-      if (error) {
-        console.error('Error!', error)
-        return
-      }
-      console.log(rows)
-      let foo = rows
-      return foo
+  getDbObj () {
+    return new Promise((resolve, reject) => {
+      this.db.all('SELECT * FROM foodb', (error, rows) => {
+        error ? reject(error) : resolve(rows)
+      })
     })
   }
 
-selectMemo (rows) {
-  return new Promise((resolve) => {
-    const memosTitle = rows.map(({ content }) => content.split('\n')[0])
-    const values = {
-      type: 'select',
-      name: 'memoTitle',
-      message: 'Choose a note you want to see:',
-      choices: memosTitle
-    }
-    const memo = Enquirer.prompt(values)
-    memo.then(({ memoTitle }) => {
-      const selectedMemo = rows.find(element => element.content.split('\n')[0] === memoTitle)
-      resolve(selectedMemo)
+  selectMemo (rows) {
+    return new Promise((resolve) => {
+      const memosTitle = rows.map(({ content }) => content.split('\n')[0])
+      const values = {
+        type: 'select',
+        name: 'memoTitle',
+        message: 'Choose a note you want to see:',
+        choices: memosTitle
+      }
+      const memo = Enquirer.prompt(values)
+      memo.then(({ memoTitle }) => {
+        const selectedMemo = rows.find(element => element.content.split('\n')[0] === memoTitle)
+        resolve(selectedMemo)
+      })
     })
-  })
-}
+  }
 
   deleteMemo (memoId) {
-    this.db.run('DELETE FROM foodb WHERE id = ?', memoId, error => {
-      if (error) {
-        return console.error(error.message)
-      }
+    return new Promise((resolve, reject) => {
+      this.db.run('DELETE FROM foodb WHERE id = ?', memoId, error => {
+        error ? reject(error) : resolve('削除に成功しました')
+      })
     })
   }
 }
-
 
 class Display {
   constructor () {
@@ -64,7 +58,6 @@ class Display {
 
   async displayLOption () {
     const rows = await this.storage.getDbObj()
-    console.log(rows)
     rows.forEach((memoTitle) => {
       console.log(memoTitle.content.split('\n')[0])
     })
@@ -79,7 +72,8 @@ class Display {
   async displayDOption () {
     const rows = await this.storage.getDbObj()
     const selectedMemo = await this.storage.selectMemo(rows)
-    await this.storage.deleteMemo(selectedMemo.id)
+    const message = await this.storage.deleteMemo(selectedMemo.id)
+    console.log(message)
   }
 }
 
