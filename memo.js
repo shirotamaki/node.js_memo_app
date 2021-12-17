@@ -17,6 +17,36 @@ class Storage {
     this.db.run('INSERT INTO foodb (content) VALUES (?)', stdin)
   }
 
+  // 工事中
+  getDbObj() {
+    let foo = this.db.all('SELECT * FROM foodb', (error, rows) => {
+      if (error) {
+        console.error('Error!', error)
+        return
+      }
+      console.log(rows)
+      let foo = rows
+      return foo
+    })
+  }
+
+selectMemo (rows) {
+  return new Promise((resolve) => {
+    const memosTitle = rows.map(({ content }) => content.split('\n')[0])
+    const values = {
+      type: 'select',
+      name: 'memoTitle',
+      message: 'Choose a note you want to see:',
+      choices: memosTitle
+    }
+    const memo = Enquirer.prompt(values)
+    memo.then(({ memoTitle }) => {
+      const selectedMemo = rows.find(element => element.content.split('\n')[0] === memoTitle)
+      resolve(selectedMemo)
+    })
+  })
+}
+
   deleteMemo (memoId) {
     this.db.run('DELETE FROM foodb WHERE id = ?', memoId, error => {
       if (error) {
@@ -26,33 +56,6 @@ class Storage {
   }
 }
 
-const getDbObj = async function () {
-  this.db.all('SELECT * FROM foodb', (error, rows) => {
-    if (error) {
-      console.error('Error!', error)
-      return
-    }
-  console.log(rows)
-  })
-  // return rows
-}
-
-  // selectMemo (rows) {
-  //   return new Promise((resolve) => {
-  //     const memosTitle = rows.map(({ content }) => content.split('\n')[0])
-  //     const values = {
-  //       type: 'select',
-  //       name: 'memoTitle',
-  //       message: 'Choose a note you want to see:',
-  //       choices: memosTitle
-  //     }
-  //     const memo = Enquirer.prompt(values)
-  //     memo.then(({ memoTitle }) => {
-  //       const selectedMemo = rows.find(element => element.content.split('\n')[0] === memoTitle)
-  //       resolve(selectedMemo)
-  //     })
-  //   })
-  // }
 
 class Display {
   constructor () {
@@ -60,7 +63,7 @@ class Display {
   }
 
   async displayLOption () {
-    const rows = await getDbObj()
+    const rows = await this.storage.getDbObj()
     console.log(rows)
     rows.forEach((memoTitle) => {
       console.log(memoTitle.content.split('\n')[0])
