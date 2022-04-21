@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict'
 
 const Enquirer = require('enquirer')
 
@@ -35,6 +36,7 @@ class Storage {
         choices: memosTitle
       }
       const memo = Enquirer.prompt(values)
+      console.log(values)
       memo.then(({ memoTitle }) => {
         const selectedMemo = rows.find(element => element.content.split('\n')[0] === memoTitle)
         resolve(selectedMemo)

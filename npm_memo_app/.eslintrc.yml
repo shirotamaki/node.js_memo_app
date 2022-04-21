@@ -6,4 +6,3 @@ extends:
 parserOptions:
   ecmaVersion: 13
 rules: {}
-p
